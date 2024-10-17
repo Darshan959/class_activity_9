@@ -98,7 +98,7 @@ class DatabaseHelper {
   String getCardImageUrl(String cardName, String suit) {
     String formattedCardName = cardName.toLowerCase().replaceAll(' ', '-');
     String formattedSuit = suit.toLowerCase();
-    return 'https://example.com/cards/$formattedCardName-of-$formattedSuit.png'; // Placeholder URL format
+    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png'; // Placeholder URL format
   }
 
   // Insert a card with a dynamically generated image URL

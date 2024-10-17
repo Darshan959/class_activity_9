@@ -69,7 +69,7 @@ class _CardScreenState extends State<CardScreen> {
   String _getCardImageUrl(String cardName, String suit) {
     String formattedCardName = cardName.toLowerCase().replaceAll(' ', '-');
     String formattedSuit = suit.toLowerCase();
-    return 'https://path/to/$formattedCardName-of-$formattedSuit.png'; // Modify this with the actual image URL logic
+    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png'; // Modify this with the actual image URL logic
   }
 
   void _deleteCard(int cardId) async {
