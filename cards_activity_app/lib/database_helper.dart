@@ -52,7 +52,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Prepopulate the folders
     await db.insert(tableFolders, {
       columnFolderName: 'Hearts',
       columnTimestamp: DateTime.now().toString(),
@@ -71,13 +70,11 @@ class DatabaseHelper {
     });
   }
 
-  // CRUD for folders
   Future<List<Map<String, dynamic>>> getFolders() async {
     Database db = await instance.database;
     return await db.query(tableFolders);
   }
 
-  // CRUD for cards
   Future<List<Map<String, dynamic>>> getCards(int folderId) async {
     Database db = await instance.database;
     return await db
@@ -94,14 +91,12 @@ class DatabaseHelper {
     return await db.delete(tableCards, where: '$columnId = ?', whereArgs: [id]);
   }
 
-  // Helper method to generate card image URL
   String getCardImageUrl(String cardName, String suit) {
     String formattedCardName = cardName.toLowerCase().replaceAll(' ', '-');
     String formattedSuit = suit.toLowerCase();
-    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png'; // Placeholder URL format
+    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png';
   }
 
-  // Insert a card with a dynamically generated image URL
   Future<int> insertCardWithImageUrl(
       String cardName, String suit, int folderId) async {
     String imageUrl = getCardImageUrl(cardName, suit);

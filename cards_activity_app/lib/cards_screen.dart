@@ -59,22 +59,35 @@ class _CardScreenState extends State<CardScreen> {
       return;
     }
 
-    // Use the DatabaseHelper to insert a card with the generated image URL
     await DatabaseHelper.instance
         .insertCardWithImageUrl(cardName, widget.folderName, widget.folderId);
-    _loadCards();
-    _cardNameController.clear(); // Clear the input field after adding the card
+
+    setState(() {
+      _loadCards();
+    });
+
+    _cardNameController.clear();
   }
 
   String _getCardImageUrl(String cardName, String suit) {
     String formattedCardName = cardName.toLowerCase().replaceAll(' ', '-');
     String formattedSuit = suit.toLowerCase();
-    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png'; // Modify this with the actual image URL logic
+    return 'https://raw.githubusercontent.com/Darshan959/class_activity_9/main/cards_activity_app/img/$formattedCardName-of-$formattedSuit.png';
   }
 
   void _deleteCard(int cardId) async {
+    final cardCount = await _getCardCount();
+
+    if (cardCount <= 3) {
+      _showLimitDialog("You need at least 3 cards in this folder.");
+      return;
+    }
+
     await DatabaseHelper.instance.deleteCard(cardId);
-    _loadCards();
+
+    setState(() {
+      _loadCards();
+    });
   }
 
   void _showLimitDialog(String message) {
@@ -126,7 +139,11 @@ class _CardScreenState extends State<CardScreen> {
                     return Card(
                       child: Column(
                         children: [
-                          Image.network(card['imageUrl']),
+                          Image.network(
+                            card['imageUrl'],
+                            width: 100,
+                            height: 100,
+                          ),
                           Text(card['name']),
                           IconButton(
                             icon: Icon(Icons.delete),

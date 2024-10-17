@@ -20,11 +20,6 @@ class _FolderScreenState extends State<FolderScreen> {
     _folders = DatabaseHelper.instance.getFolders();
   }
 
-  Future<int> _getCardCount(int folderId) async {
-    final cards = await DatabaseHelper.instance.getCards(folderId);
-    return cards.length;
-  }
-
   Future<String?> _getFirstCardImage(int folderId) async {
     final cards = await DatabaseHelper.instance.getCards(folderId);
     if (cards.isNotEmpty) {
@@ -36,7 +31,7 @@ class _FolderScreenState extends State<FolderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Card Organizer')),
+      appBar: AppBar(title: Text('Folders')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _folders,
         builder: (context, snapshot) {
@@ -48,35 +43,52 @@ class _FolderScreenState extends State<FolderScreen> {
             itemCount: folders.length,
             itemBuilder: (context, index) {
               final folder = folders[index];
-              return FutureBuilder<int>(
-                future: _getCardCount(folder['id']),
-                builder: (context, cardCountSnapshot) {
-                  if (!cardCountSnapshot.hasData) {
-                    return ListTile(title: Text(folder['name']));
-                  }
-                  final cardCount = cardCountSnapshot.data!;
-                  return FutureBuilder<String?>(
-                    future: _getFirstCardImage(folder['id']),
-                    builder: (context, imageSnapshot) {
-                      return ListTile(
-                        leading: imageSnapshot.hasData
-                            ? Image.network(imageSnapshot.data!)
-                            : Icon(Icons.folder),
-                        title: Text(folder['name']),
-                        subtitle: Text('$cardCount cards'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CardScreen(
-                                  folderId: folder['id'],
-                                  folderName: folder['name']),
-                            ),
-                          );
-                        },
+              return ListTile(
+                title: Text(folder['name']),
+                subtitle: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: DatabaseHelper.instance.getCards(folder['id']),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Text('Loading...');
+                    }
+                    final cardCount = snapshot.data!.length;
+                    return Text('$cardCount cards');
+                  },
+                ),
+                leading: FutureBuilder<String?>(
+                  future: _getFirstCardImage(folder['id']),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Container(
+                        width: 50,
+                        height: 50,
+                        child: Image.network(
+                          snapshot.data!,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.image_not_supported);
+                          },
+                        ),
                       );
-                    },
-                  );
+                    } else {
+                      return Icon(Icons.image_not_supported);
+                    }
+                  },
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CardScreen(
+                        folderId: folder['id'],
+                        folderName: folder['name'],
+                      ),
+                    ),
+                  ).then((_) {
+                    setState(() {
+                      _loadFolders();
+                    });
+                  });
                 },
               );
             },
